@@ -9,7 +9,7 @@ class RegisterSerializer(serializers.Serializer):
     password = serializers.CharField()
 
     def validate(self, data):
-        if User.objects.filter(username = data['username']).exist() :
+        if User.objects.filter(username = data['username']).exists() :
             raise serializers.ValidationError('username is taken')
 
         return data
@@ -18,7 +18,9 @@ class RegisterSerializer(serializers.Serializer):
         user = User.objects.create( 
             first_name= validated_data['first_name'] ,
             last_name= validated_data['last_name'] ,
-            username= validated_data['user_name'] ,
+            username= validated_data['username'].lower() ,
             )
         user.set_password(validated_data['password'])
+
+        return validated_data
     

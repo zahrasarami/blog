@@ -26,6 +26,7 @@ class Registerview(APIView) :
 
             
         except Exception as e :
+            print(e)
             return Response({
                     'data' : {} ,
                     'message' : 'something went wrong' ,

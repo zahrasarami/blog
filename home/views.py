@@ -6,7 +6,31 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .models import Blog
 from django.db.models import Q
+from django.core.paginator import Paginator
 
+class PublicBlog(APIView):
+    def get(self ,request) :
+        try:
+            blogs = Blog.objects.all().order_by('?')
+            if  request.GET.get('search'):
+                search = request.GET.get('search')
+                blogs = blogs.filter(Q(title__icontains= search) | Q(blog_text__icontains=search))
+            
+            page_number = request.GET.get('page' , 1)
+            paginator = Paginator(blogs , 5)
+            
+            serializer = BlogSerializer(paginator.page(page_number) , many=True)
+            return Response({
+                'data' : serializer.data ,
+                'message' : 'blogs fetched seccesfully' ,
+            } , status= status.HTTP_201_CREATED)
+
+        except Exception as e :
+            print(e)
+            return Response({
+                    'data' : {} ,
+                    'message' : 'something went wrong or invalid page number' ,
+                } , status = status.HTTP_400_BAD_REQUEST )
 
 class BlogView(APIView) :
     permission_classes = [IsAuthenticated]

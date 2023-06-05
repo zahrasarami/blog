@@ -71,13 +71,12 @@ class BlogView(APIView) :
                 } , status = status.HTTP_400_BAD_REQUEST )
 
 
-            print(1)
             if request.user != blog[0].user :
                 return Response({
                     'data' : {} ,
                     'message' : 'you are nor authorize to do this' ,
                 } , status = status.HTTP_400_BAD_REQUEST )
-            print(2)
+           
             serializer = BlogSerializer(blog[0], data=data ,  partial= True)
             
             if not serializer.is_valid():
@@ -99,6 +98,35 @@ class BlogView(APIView) :
                     'data' : {} ,
                     'message' : 'something went wrong' ,
                 } , status = status.HTTP_400_BAD_REQUEST )
+
+
+    def delete(self , request):
+        try:
+            data = request.data  
+            blog = Blog.objects.filter(uid= data.get('uid'))
+
+            if not blog.exists():
+                return Response({
+                    'data' : {} ,
+                    'message' : 'invalid blog uid' ,
+                } , status = status.HTTP_400_BAD_REQUEST )
+
+            if request.user != blog[0].user :
+                return Response({
+                    'data' : {} ,
+                    'message' : 'you are nor authorize to do this' ,
+                } , status = status.HTTP_400_BAD_REQUEST )
+
+            blog[0].delete()
+
+            return Response({
+                'data' : {} ,
+                'message' : 'blog is deleted seccesfully' ,
+            } , status= status.HTTP_201_CREATED)
             
-            
-            
+        except Exception as e :
+            print(e)
+            return Response({
+                    'data' : {} ,
+                    'message' : 'something went wrong' ,
+                } , status = status.HTTP_400_BAD_REQUEST )
